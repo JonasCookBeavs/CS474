@@ -46,9 +46,9 @@ void initialize()
 
 struct block *block_new(int size, int in_use, struct block *prev)
 {
-    struct block *b = PTR_OFFSET(prev, PADDED_SIZE(sizeof(struct block)) + prev->size);
+    struct block *b = PTR_OFFSET(prev, PADDED_SIZEOF(struct block) + size);
 
-    b->size = prev->size - size - PADDED_SIZE(sizeof(struct block));
+    b->size = prev->size - size - PADDED_SIZEOF(struct block);
     b->in_use = in_use;
     b->next = NULL;
 
@@ -75,7 +75,7 @@ void *myalloc(int size)
         // printf("Checking if valid\n");
         if(temp_head->size >= size && !temp_head->in_use){
             temp_head->in_use = 1;
-            if(temp_head->size == size || temp_head->size - size <= PADDED_SIZE(sizeof(struct block))) {
+            if(temp_head->size == size || temp_head->size - size <= PADDED_SIZEOF(struct block)) {
                 return temp_head;
             }
             // printf("Valid\n");
@@ -115,7 +115,7 @@ void myfree(void *p)
             continue;
         }
 
-        temp_head->size += next_block->size + PADDED_SIZE(sizeof(struct block));
+        temp_head->size += next_block->size + PADDED_SIZEOF(struct block);
         temp_head->next = next_block->next;
         myfree(next_block);
     }

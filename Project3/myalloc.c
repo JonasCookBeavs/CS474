@@ -43,6 +43,17 @@ void initialize()
     head->next = NULL;
     
 }
+
+struct block *block_new(int size, int in_use, struct block *prev)
+{
+    struct block *b = PTR_OFFSET(prev, PADDED_SIZE(sizeof(struct block)) + prev->size);
+
+    b->size = prev->size - size - PADDED_SIZE(sizeof(struct block));
+    b->in_use = in_use;
+    b->next = NULL;
+
+    return b;
+}
 /**
  * Allocate `size` bytes.
  *
@@ -63,8 +74,16 @@ void *myalloc(int size)
     while(head != NULL){
         // printf("Checking if valid\n");
         if(temp_head->size >= size && !temp_head->in_use){
-            // printf("Valid\n");
             temp_head->in_use = 1;
+            if(temp_head->size == size || temp_head->size - size <= PADDED_SIZE(sizeof(struct block))) {
+                return temp_head;
+            }
+            // printf("Valid\n");
+            struct block *b = block_new(size, 0, temp_head);
+            temp_head->size = size;
+            
+            b->next = temp_head->next;
+            temp_head->next = b;
             return temp_head;
         }
         // printf("Going to next node\n");
@@ -84,6 +103,8 @@ void myfree(void *p)
 {
     // TODO
     (void)p;  // silence unused variable warnings
+    struct block *b = p;
+    b->in_use = 0;
 }
 
 // ---------------------------------------------------------

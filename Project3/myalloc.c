@@ -105,6 +105,20 @@ void myfree(void *p)
     (void)p;  // silence unused variable warnings
     struct block *b = p;
     b->in_use = 0;
+
+    struct block *temp_head = head;
+    while(temp_head != NULL && temp_head->next != NULL){
+        struct block *next_block = temp_head->next;
+        
+        if(temp_head->in_use == 1 || next_block->in_use == 1){
+            temp_head = temp_head->next;
+            continue;
+        }
+
+        temp_head->size += next_block->size + PADDED_SIZE(sizeof(struct block));
+        temp_head->next = next_block->next;
+        myfree(next_block);
+    }
 }
 
 // ---------------------------------------------------------

@@ -1,0 +1,7 @@
+*.o
+*.a
+block
+image
+inode
+free
+testfs
